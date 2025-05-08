@@ -31,10 +31,7 @@ public class BookServiceImpl implements BookService {
 		try (LDAPConnection connection = ldapConnectionPool.getConnection()) {
 
 			Entry entry = new Entry(buildDn(book.getTitle()));
-			
-			//TODO: when u create a custom object class called libraryBook, u have to 
-			//replace "document" with "libraryBook"
-			
+						
 			//set mandatory attributes
 			entry.addAttribute("objectClass", "top", "librarybook");
 			entry.addAttribute("bookTitle", book.getTitle()); 
@@ -54,7 +51,6 @@ public class BookServiceImpl implements BookService {
 			if(book.getLanguage() != null) {
 				entry.addAttribute("language", book.getLanguage());
 			}			
-						
 			
 			//if (book.getStatus() != null)
 			//	entry.addAttribute("status", book.getStatus());
@@ -69,7 +65,7 @@ public class BookServiceImpl implements BookService {
 			
 			//TODO: use exception handler to handle
 			// provide a better way..
-			throw new RuntimeException(ex);  
+			throw new RuntimeException(ex);
 			
 		}
 	}
