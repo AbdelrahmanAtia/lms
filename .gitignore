@@ -35,3 +35,4 @@ mvnw
 mvnw.cmd
 .mvn/wrapper/maven-wrapper.properties
 .gitattributes
+src/main/resources/ldap custom schemas/lms.ldif.log

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.atos.piam.lms.service.dto.Book;
+import com.atos.piam.lms.utils.LdapUtils;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
@@ -39,17 +40,17 @@ public class BookServiceImpl implements BookService {
 			entry.addAttribute("bookTitle", book.getTitle()); 
 
 			//set optional attributes
-			
 			if (book.getAuthor() != null)
 				entry.addAttribute("author", book.getAuthor());
 			
 			if (book.getPublisher() != null)
 				entry.addAttribute("publisher", book.getPublisher());
 			
+			if(book.getPublicationDate() != null) {
+				entry.addAttribute("publicationDate", LdapUtils.toGeneralizedTime(book.getPublicationDate()));
+			}
+						
 			
-			
-			//if (book.getPublicationYear() != null)
-			//	entry.addAttribute("publicationYear", book.getPublicationYear());
 			//if (book.getCategory() != null)
 			//	entry.addAttribute("category", book.getCategory());
 			//if (book.getStatus() != null)

@@ -1,6 +1,6 @@
 package com.atos.piam.lms.restapi.apidto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -13,7 +13,7 @@ public class BookApiDto {
     
 	private String author;
 	
-	private Date publicationDate;
+	private LocalDate publicationDate;
 	
 	private String publisher;
 	
