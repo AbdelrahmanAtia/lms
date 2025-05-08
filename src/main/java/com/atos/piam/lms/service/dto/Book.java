@@ -12,6 +12,6 @@ public class Book {
 	private LocalDate publicationDate;
 	private String publisher;
 	private String language;
-	private int quantity; //number of copies
+	private Integer quantity; //number of copies
 	private boolean availability;
 }

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.atos.piam.lms.restapi.apidto.BookApiDto;
 import com.atos.piam.lms.restapi.mapper.BookApiDtoMapper;
 import com.atos.piam.lms.service.BookService;
+
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -25,7 +27,7 @@ public class LmsRestApi {
 	private BookApiDtoMapper mapper;
 
 	@PostMapping("/books/add")
-	public void addBook(@RequestBody BookApiDto bookApiDto) {
+	public void addBook(@Valid @RequestBody BookApiDto bookApiDto) {
 		log.info("recieved a rest request to create a new book with details: {}", bookApiDto);
 		bookService.createBook(mapper.toDto(bookApiDto));
 	}

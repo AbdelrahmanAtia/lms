@@ -3,6 +3,7 @@ package com.atos.piam.lms.restapi.apidto;
 import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -19,7 +20,8 @@ public class BookApiDto {
 	
 	private String language;
 	
-	private int quantity; //number of copies
+	@NotNull(message = "quantity field is required")
+	private Integer quantity; //number of copies
 	
 	private boolean availability;
 }

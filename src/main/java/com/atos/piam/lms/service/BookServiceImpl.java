@@ -38,6 +38,7 @@ public class BookServiceImpl implements BookService {
 			//set mandatory attributes
 			entry.addAttribute("objectClass", "top", "librarybook");
 			entry.addAttribute("bookTitle", book.getTitle()); 
+			entry.addAttribute("quantity",  book.getQuantity().toString()); 
 
 			//set optional attributes
 			if (book.getAuthor() != null)
@@ -49,20 +50,26 @@ public class BookServiceImpl implements BookService {
 			if(book.getPublicationDate() != null) {
 				entry.addAttribute("publicationDate", LdapUtils.toGeneralizedTime(book.getPublicationDate()));
 			}
+			
+			if(book.getLanguage() != null) {
+				entry.addAttribute("language", book.getLanguage());
+			}			
 						
 			
-			//if (book.getCategory() != null)
-			//	entry.addAttribute("category", book.getCategory());
 			//if (book.getStatus() != null)
 			//	entry.addAttribute("status", book.getStatus());
-			//if (book.getQuantity() != null)
-			//	entry.addAttribute("copyCount", book.getCopyCount().toString());
 
 			connection.add(entry);
+			
+			log.info("New Book added successfully");
+			
 		} catch (LDAPException ex) {
 			log.error("An error occured..");
 			log.error(ex.getMessage(), ex);
-			//TODO: throw suitable exception
+			
+			//TODO: use exception handler to handle
+			// provide a better way..
+			throw new RuntimeException(ex);  
 			
 		}
 	}
