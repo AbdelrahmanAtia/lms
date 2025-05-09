@@ -1,16 +1,23 @@
 package com.atos.piam.lms.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 
 import com.atos.piam.lms.service.dto.Book;
 import com.atos.piam.lms.utils.LdapUtils;
+import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.Entry;
 import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPConnectionPool;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.LDAPSearchException;
+import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
+import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchScope;
@@ -28,7 +35,6 @@ public class BookServiceImpl implements BookService {
 	
 
 	public BookServiceImpl(LDAPConnectionPool ldapConnectionPool, @Value("${ldap.base.dn}") String baseDn) {
-
 		this.ldapConnectionPool = ldapConnectionPool;
 		this.baseDn = baseDn;
 	}
@@ -39,6 +45,7 @@ public class BookServiceImpl implements BookService {
 			
 			String dn = buildBookDn(book.getTitle()); //distinguished name of the book entry
 			
+			//TODO: i think it's better to handle exception of entry already exist
 			if(isBookEntryExist(connection, dn)) {
 				throw new IllegalArgumentException("A book with the DN '" + dn + "' already exists.");
 			}
@@ -47,7 +54,7 @@ public class BookServiceImpl implements BookService {
 			fillEntryAttributes(entry, book);
 			
 			connection.add(entry);			
-			log.info("New Book added successfully");
+			log.info("New book added successfully for dn: {}", dn);
 		} catch (LDAPException ex) {
 			log.error("An error occured..");
 			log.error(ex.getMessage(), ex);
@@ -58,14 +65,44 @@ public class BookServiceImpl implements BookService {
 
 		}
 	}
-
-	/*
-	private boolean isBookEntryExist(LDAPConnection connection, String dn) throws LDAPSearchException {
-		String filter = "(objectClass=*)";
-		SearchResult searchResult = connection.search(dn, SearchScope.BASE, filter, "1.1");
-		return searchResult.getEntryCount() > 0 ? true : false;
+	
+	@Override
+	public void updateBook(Book book) {
+		log.info("updated book details: {}", book);
+	    try (LDAPConnection connection = ldapConnectionPool.getConnection()) {
+	        String dn = buildBookDn(book.getTitle());
+	        
+	        // Check if book exists
+	        if (!isBookEntryExist(connection, dn)) {
+	            throw new IllegalArgumentException("Book with DN '" + dn + "' does not exist.");
+	        }
+	        
+	        // Create a new entry to get the updated attributes
+	        Entry updatedEntry = new Entry(dn);
+	        fillEntryAttributes(updatedEntry, book);
+	        
+	        List<Modification> modificationsList = new ArrayList<>();
+	        
+	        // Add REPLACE modifications for all attributes
+	        for (Attribute attribute : updatedEntry.getAttributes()) {
+	        	modificationsList.add(new Modification(
+	                ModificationType.REPLACE,
+	                attribute.getName(),
+	                attribute.getValues()
+	            ));
+	        }
+	        
+	        // create modify request
+	        ModifyRequest modifyRequest = new ModifyRequest(dn, modificationsList);
+	        
+	        connection.modify(modifyRequest);
+	        log.info("Book updated successfully for dn: {}", dn);
+	        
+	    } catch (LDAPException ex) {
+	        log.error("Error updating book: {}", ex.getMessage(), ex);
+	        throw new RuntimeException("Failed to update book", ex);
+	    }
 	}
-	*/
 	
     private boolean isBookEntryExist(LDAPConnection connection, String dn) {
         try {
@@ -106,7 +143,10 @@ public class BookServiceImpl implements BookService {
 	}
 
 	private String buildBookDn(String bookTitle) {
+		//TODO: book title is not a good choice for common name, find something else
 		return "cn=" + bookTitle + "," + "ou=books," + baseDn;
 	}
+
+
 
 }

@@ -5,5 +5,7 @@ import com.atos.piam.lms.service.dto.Book;
 public interface BookService {
 
 	void createBook(Book book);
+	
+	void updateBook(Book book);
 
 }
