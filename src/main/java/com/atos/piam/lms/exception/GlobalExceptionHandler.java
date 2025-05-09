@@ -44,6 +44,12 @@ class GlobalExceptionHandler {
 	public @ResponseBody HttpErrorInfo handleTimeoutException(HttpServletRequest request, TimeoutException ex) {
 		return createHttpErrorInfo(INTERNAL_SERVER_ERROR, request, ex);
 	}
+	
+	@ResponseStatus(INTERNAL_SERVER_ERROR)
+	@ExceptionHandler(LdapRepositoryException.class)
+	public @ResponseBody HttpErrorInfo handleLdapRepositoryException(HttpServletRequest request, LdapRepositoryException ex) {
+		return createHttpErrorInfo(INTERNAL_SERVER_ERROR, request, ex);
+	}	
 
 	private HttpErrorInfo createHttpErrorInfo(HttpStatus httpStatus, HttpServletRequest request, Exception ex) {
 
