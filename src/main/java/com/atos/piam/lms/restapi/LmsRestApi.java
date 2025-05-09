@@ -16,14 +16,16 @@ import com.atos.piam.lms.common.BookSearchCriteria;
 import com.atos.piam.lms.restapi.apidto.BookApiDto;
 import com.atos.piam.lms.restapi.mapper.BookApiDtoMapper;
 import com.atos.piam.lms.service.BookService;
-import com.atos.piam.lms.service.dto.Book;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Library Management System API", description = "API for managing books in the Library Management System")
 public class LmsRestApi {
 
 	@Autowired
@@ -33,6 +35,7 @@ public class LmsRestApi {
 	private BookApiDtoMapper mapper;
 
 	@PostMapping("/books")
+    @Operation(summary = "Add a new book", description = "Creates a new book in the library system with the provided details.")
 	public ResponseEntity<String> addBook(@Valid @RequestBody BookApiDto bookApiDto) {
 		log.info("recieved a rest request to create a new book with details: {}", bookApiDto);
 		bookService.createBook(mapper.toDto(bookApiDto));
@@ -40,6 +43,7 @@ public class LmsRestApi {
 	}
 
 	@PutMapping("/books")
+    @Operation(summary = "Update an existing book", description = "Updates the details of an existing book identified by its ISBN.")	
 	public ResponseEntity<String> updateBook(@Valid @RequestBody BookApiDto bookApiDto) {
 		log.info("recieved a rest request to update book with title: {}", bookApiDto.getTitle());
 		bookService.updateBook(mapper.toDto(bookApiDto));
@@ -47,6 +51,7 @@ public class LmsRestApi {
 	}
 	
 	@DeleteMapping("/books/{isbn}")
+    @Operation(summary = "Delete a book", description = "Deletes a book from the library system by its ISBN.")	
 	public ResponseEntity<String> deleteBook(@PathVariable String isbn) {
 		log.info("recieved a rest request to delete book with isbn: {}", isbn);
 		bookService.deleteBook(isbn);
@@ -54,6 +59,7 @@ public class LmsRestApi {
 	}
 	
 	@PostMapping("/books/search")
+    @Operation(summary = "Search books", description = "Searches for books based on the provided search criteria.")	
 	public List<BookApiDto> searchBooks(@RequestBody BookSearchCriteria searchCriteria) {
 		log.info("recieved a rest request to search for books with criteria: {}", searchCriteria);
 		return mapper.toApiDto(bookService.searchBooks(searchCriteria));
