@@ -11,6 +11,9 @@ import lombok.Data;
 @Data
 public class BookApiDto {
     
+	@NotBlank
+	private String isbn; //international standard book number
+	
 	@NotBlank(message = "book title is required")
 	private String title;
     

@@ -41,10 +41,11 @@ public class BookServiceImpl implements BookService {
 	public void createBook(Book book) {
 		try (LDAPConnection connection = ldapConnectionPool.getConnection()) {
 
-			String dn = buildBookDn(book.getTitle()); // distinguished name of the book entry
-
+			String dn = buildBookDn(book.getIsbn()); // distinguished name of the book entry
+			log.info("dn: {}", dn);
+			
 			if (isBookEntryExist(connection, dn)) {
-				throw new InvalidInputException("A book with the DN '" + dn + "' already exists.");
+				throw new InvalidInputException("A book with isbn " + book.getIsbn() + " already exists.");
 			}
 
 			Entry entry = new Entry(dn);
@@ -63,12 +64,12 @@ public class BookServiceImpl implements BookService {
 	public void updateBook(Book book) {
 		log.info("updated book details: {}", book);
 		try (LDAPConnection connection = ldapConnectionPool.getConnection()) {
-			String dn = buildBookDn(book.getTitle());
 
+			String dn = buildBookDn(book.getIsbn()); //using ISBN as entry CN
+			log.info("dn: {}", dn);
+			
 			if (!isBookEntryExist(connection, dn)) {
-				//TODO: when you use isbn as a cn for the book change the 
-				//following error message
-				throw new NotFoundException("Book with DN '" + dn + "' not found");
+				throw new NotFoundException("Book with isbn " + book.getIsbn() + " not exist");
 			}
 
 			// create a new entry to get the updated attributes
@@ -89,6 +90,25 @@ public class BookServiceImpl implements BookService {
 			throw new RuntimeException("Failed to update book", ex);
 		}
 	}
+	
+	@Override
+	public void deleteBook(String isbn) {
+	    try (LDAPConnection connection = ldapConnectionPool.getConnection()) {
+	        
+	    	String dn = buildBookDn(isbn);
+	        log.info("dn: {}", dn);
+	        
+	        if (!isBookEntryExist(connection, dn)) {
+	            throw new NotFoundException("Book with ISBN '" + isbn + "' not found");
+	        }
+
+	        connection.delete(dn);
+	        log.info("Book deleted successfully with DN: {}", dn);
+	    } catch (LDAPException ex) {
+	        log.error("Error deleting book with ISBN {}: {}", isbn, ex.getMessage(), ex);
+	        throw new RuntimeException("Failed to delete book", ex);
+	    }
+	}
 
 	private boolean isBookEntryExist(LDAPConnection connection, String dn) {
 		try {
@@ -108,6 +128,7 @@ public class BookServiceImpl implements BookService {
 
 		// set mandatory attributes
 		entry.addAttribute("objectClass", "top", "librarybook");
+		entry.addAttribute("isbn", book.getIsbn());
 		entry.addAttribute("bookTitle", book.getTitle());
 		entry.addAttribute("quantity", book.getQuantity().toString());
 
@@ -136,9 +157,10 @@ public class BookServiceImpl implements BookService {
 		}
 	}
 
-	private String buildBookDn(String bookTitle) {
-		// TODO: book title is not a good choice for common name, find something else
-		return "cn=" + bookTitle + "," + "ou=books," + baseDn;
+	private String buildBookDn(String isbn) {
+		return "cn=" + isbn + "," + "ou=books," + baseDn;
 	}
+
+
 
 }

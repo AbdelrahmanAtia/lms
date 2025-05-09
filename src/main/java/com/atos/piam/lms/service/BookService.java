@@ -8,4 +8,6 @@ public interface BookService {
 	
 	void updateBook(Book book);
 
+	void deleteBook(String isbn);
+
 }

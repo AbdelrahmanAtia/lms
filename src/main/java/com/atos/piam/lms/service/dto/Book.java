@@ -9,6 +9,7 @@ import lombok.Data;
 @Data
 public class Book {
 	
+	private String isbn; //international standard book number
 	private String title;
 	private String author;
 	private LocalDate publicationDate;
