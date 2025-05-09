@@ -16,6 +16,9 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import com.unboundid.ldap.sdk.ModifyRequest;
 import com.unboundid.ldap.sdk.ResultCode;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
 
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +85,28 @@ public class LdapRepositoryImpl implements LdapRepository {
 			}
 			log.error("Error checking DN existence for {}: {}", dn, ex.getMessage());
 			throw new LdapRepositoryException("An error occured while searching for book entry");
+		}
+	}
+	
+	@Override
+	public List<SearchResultEntry> searchEntries(String baseDn, String filter, String[] attributes) {
+		log.info("searching for entries with the following details:-");
+		log.info("baseDn: {}", baseDn);
+		log.info("filter: {}", filter);
+		
+		try (LDAPConnection connection = ldapConnectionPool.getConnection()) {
+			SearchRequest searchRequest = new SearchRequest(baseDn, SearchScope.SUB, filter, attributes);
+
+			log.info("search request: {}", searchRequest);
+			SearchResult searchResult = connection.search(searchRequest);
+
+			List<SearchResultEntry> results = searchResult.getSearchEntries();
+			
+			return results == null ? new ArrayList<>() : results;
+
+		} catch (LDAPException ex) {
+			log.error("Error searching LDAP: {}", ex.getMessage(), ex);
+			throw new LdapRepositoryException("Failed to search books");
 		}
 	}
 

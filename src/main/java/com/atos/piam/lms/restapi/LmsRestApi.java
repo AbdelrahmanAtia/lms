@@ -1,5 +1,7 @@
 package com.atos.piam.lms.restapi;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.atos.piam.lms.common.BookSearchCriteria;
 import com.atos.piam.lms.restapi.apidto.BookApiDto;
 import com.atos.piam.lms.restapi.mapper.BookApiDtoMapper;
 import com.atos.piam.lms.service.BookService;
+import com.atos.piam.lms.service.dto.Book;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +53,11 @@ public class LmsRestApi {
 		return ResponseEntity.ok("Book deleted successfully");
 	}
 	
+	@PostMapping("/books/search")
+	public List<BookApiDto> searchBooks(@RequestBody BookSearchCriteria searchCriteria) {
+		log.info("recieved a rest request to search for books with criteria: {}", searchCriteria);
+		return mapper.toApiDto(bookService.searchBooks(searchCriteria));
+	}
 
 	@PostMapping("/books/loan")
 	public void loanBook() {

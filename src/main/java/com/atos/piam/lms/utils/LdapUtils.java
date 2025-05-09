@@ -2,6 +2,7 @@ package com.atos.piam.lms.utils;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import com.unboundid.ldap.sdk.Filter;
 
 public class LdapUtils {
 	private static final DateTimeFormatter GENERALIZED_TIME_FORMATTER = DateTimeFormatter
@@ -25,4 +26,11 @@ public class LdapUtils {
 		String datePart = generalizedTime.substring(0, 8);
 		return LocalDate.parse(datePart, DateTimeFormatter.BASIC_ISO_DATE);
 	}
+	
+    public static String escapeForFilter(String value) {
+        if (value == null) {
+            return null;
+        }
+        return Filter.encodeValue(value);
+    }	
 }

@@ -13,4 +13,16 @@ public enum AvailabilityStatus {
 	public String toString() {
 		return value;
 	}
+	
+	public static AvailabilityStatus fromString(String value) {
+		if (value != null) {
+			for (AvailabilityStatus status : AvailabilityStatus.values()) {
+				if (value.equals(status.value)) {
+					return status;
+				}
+			}
+		}
+		throw new IllegalArgumentException("No enum constant with value: " + value);
+	}
+	
 }
