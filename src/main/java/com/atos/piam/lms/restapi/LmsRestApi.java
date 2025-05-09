@@ -59,9 +59,4 @@ public class LmsRestApi {
 		return mapper.toApiDto(bookService.searchBooks(searchCriteria));
 	}
 
-	@PostMapping("/books/loan")
-	public void loanBook() {
-
-	}
-
 }
